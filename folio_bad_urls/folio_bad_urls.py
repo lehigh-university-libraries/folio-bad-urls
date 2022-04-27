@@ -4,6 +4,7 @@ import logging
 from os.path import exists
 
 from folio import Folio
+from data import ElectronicRecord
 from web import WebTester
 
 logging.basicConfig()
@@ -41,11 +42,12 @@ class FolioBadUrls:
         print(f"Found {len(records)} electronic records.")
         for record in records:
             if self.within_scope(record):
+                # log.debug(f"record within scope: {record}")
                 result = self.web.test_record(record)
                 # log.debug(f"Result {result} for record: {record}")
         
-    def within_scope(self, record):
-        return True
+    def within_scope(self, record: ElectronicRecord):
+        return record.hasExternalIds and not record.suppressDiscovery and not record.control_number
 
 def main():
     parser = argparse.ArgumentParser(description="Report on URLs in 856 fields.")
