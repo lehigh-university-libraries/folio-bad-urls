@@ -7,6 +7,7 @@ from data import ElectronicRecord
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
+# log.setLevel(logging.DEBUG)
 
 class WebTester:
     """ Test URLs for their response status code. """
@@ -16,15 +17,22 @@ class WebTester:
         log.addHandler(self._config.log_file_handler)
 
         self._CRAWL_DELAY = float(self._config.get('WebTester', 'crawl_delay'))
+        self._REQUEST_TIMEOUT = float(self._config.get('WebTester', 'request_timeout'))
+
         self._last_query_time = dict()
 
     def test_record(self, record: ElectronicRecord):
         url = record.url
         self._pause_if_needed(url)
-        response = requests.get(url, timeout = 10)
-        status_code = response.status_code
-        log.debug(f"Got status code {status_code} for url {url}")
-        return status_code
+        try :
+            response = requests.get(url, timeout = self._REQUEST_TIMEOUT)
+            status_code = response.status_code
+            log.debug(f"Got status code {status_code} for url {url}")
+            return status_code
+        except requests.exceptions.Timeout:
+            log.debug(f"Request timed out for url {url}")
+            return 0
+
 
     def _pause_if_needed(self, url):
         base_url = self._parse_base_url(url)
