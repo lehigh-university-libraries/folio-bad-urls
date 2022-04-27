@@ -6,6 +6,7 @@ from os.path import exists
 from folio import Folio
 from data import ElectronicRecord
 from web import WebTester
+from reporter import Reporter
 
 logging.basicConfig()
 log = logging.getLogger(__name__)
@@ -18,33 +19,46 @@ class FolioBadUrls:
         if not exists(config_file):
             raise FileNotFoundError(f"Cannot find config file: {config_file}")
 
-        self.config = configparser.ConfigParser()
-        self.config.read(config_file)
+        self._config = configparser.ConfigParser()
+        self._config.read(config_file)
         self._init_log()
         log.info(f"Initialized with config file {config_file}")
         # Note: Config contains the FOLIO credentials.  Consider logging destinations.
         # print("Config: ", {section: dict(self.config[section]) for section in self.config.sections()})
-        self.folio = Folio(self.config)
-        self.web = WebTester(self.config)
+        self.folio = Folio(self._config)
+        self.web = WebTester(self._config)
+        self.reporter = Reporter(self._config)
 
     def _init_log(self):
-        log_file = self.config.get("Logging", "log_file", fallback=None)
+        log_file = self._config.get("Logging", "log_file", fallback=None)
         if log_file:
-            self.config.log_file_handler = logging.FileHandler(filename=log_file)  # type: ignore
-            self.config.log_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))  # type: ignore
-            log.addHandler(self.config.log_file_handler)  # type: ignore
+            self._config.log_file_handler = logging.FileHandler(filename=log_file)  # type: ignore
+            self._config.log_file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))  # type: ignore
+            log.addHandler(self._config.log_file_handler)  # type: ignore
         else:
-            self.config.log_file_handler = logging.NullHandler()  # type: ignore
+            self._config.log_file_handler = logging.NullHandler()  # type: ignore
 
     def run(self):
+        QUERY_LIMIT = int(self._config.get('Folio', 'query_limit'))
+        offset = 0
+        total_records = self.folio.get_total_records()
+        while offset < total_records:
+            results = self.run_batch(offset)
+            self.reporter.write_results(offset, results)
+            offset += QUERY_LIMIT
+
+    def run_batch(self, offset):
         # TODO use some limit intelligently to allow restart after a point
-        records = self.folio.load_electronic_records()
-        print(f"Found {len(records)} electronic records.")
+        records = self.folio.load_electronic_records(offset)
+        log.debug(f"Found {len(records)} electronic records.")
+        results = []
         for record in records:
             if self.within_scope(record):
                 # log.debug(f"record within scope: {record}")
                 result = self.web.test_record(record)
                 # log.debug(f"Result {result} for record: {record}")
+                results.append(result)
+        return results
         
     def within_scope(self, record: ElectronicRecord):
         return record.hasExternalIds and not record.suppressDiscovery and not record.control_number

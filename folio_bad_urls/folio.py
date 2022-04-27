@@ -14,6 +14,8 @@ class Folio:
         log.addHandler(self._config.log_file_handler)
         self.connection = self._init_connection()
 
+        self._query_limit = self._config.get("Folio", "query_limit")
+
     def _init_connection(self):
         log.debug("Connecting to FOLIO")
         self.client = FolioClient(
@@ -23,21 +25,30 @@ class Folio:
             password = self._config.get('Folio', 'password')
         )
 
-    def load_electronic_records(self):
+    def load_electronic_records(self, offset):
         log.debug("Getting electronic SRS records")
-        srs_records = self._api_get_srs_records()
+        srs_records = self._get_srs_records(offset)
         records = [record for record in
             [self._parse_record(srs_record) for srs_record in srs_records]
             if record is not None]
         return records
         
-    def _api_get_srs_records(self):
-        query_limit = self._config.get("Folio", "query_limit")
-        path = "/source-storage/records"
-        params = f'?state=ACTUAL&offset=0&limit={query_limit}'
-        result = self.client.folio_get(path, query = params)
+    def get_total_records(self):
+        srs_records_empty = self._api_query_srs_records(0, 0)
+        return int(srs_records_empty['totalRecords'])
+
+    def _get_srs_records(self, offset, limit = None):
+        if not limit:
+            limit = self._query_limit
+
+        result = self._api_query_srs_records(offset, limit)
         srs_records = result['records']
         return srs_records
+
+    def _api_query_srs_records(self, offset, limit = None):
+        path = "/source-storage/records"
+        params = f'?state=ACTUAL&offset={offset}&limit={limit}'
+        return self.client.folio_get(path, query = params)
 
     def _parse_record(self, srs_record):
         record = ElectronicRecord()

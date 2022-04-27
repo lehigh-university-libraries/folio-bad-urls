@@ -1,4 +1,5 @@
 *.log
+*.csv
 *.properties
 !example.properties
 *.pyc

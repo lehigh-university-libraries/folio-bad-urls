@@ -3,7 +3,7 @@ import logging
 import time
 from urllib.parse import urlparse
 
-from data import ElectronicRecord
+from data import ElectronicRecord, TestResult
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -26,12 +26,12 @@ class WebTester:
         self._pause_if_needed(url)
         try :
             response = requests.get(url, timeout = self._REQUEST_TIMEOUT)
-            status_code = response.status_code
+            status_code = int(response.status_code)
             log.debug(f"Got status code {status_code} for url {url}")
-            return status_code
+            return TestResult(url, status_code)
         except requests.exceptions.Timeout:
             log.debug(f"Request timed out for url {url}")
-            return 0
+            return TestResult(url, 0)
 
 
     def _pause_if_needed(self, url):
