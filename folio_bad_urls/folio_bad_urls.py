@@ -4,6 +4,7 @@ import logging
 from os.path import exists
 
 from folio import Folio
+from web import WebTester
 
 logging.basicConfig()
 log = logging.getLogger(__name__)
@@ -23,6 +24,7 @@ class FolioBadUrls:
         # Note: Config contains the FOLIO credentials.  Consider logging destinations.
         # print("Config: ", {section: dict(self.config[section]) for section in self.config.sections()})
         self.folio = Folio(self.config)
+        self.web = WebTester(self.config)
 
     def _init_log(self):
         log_file = self.config.get("Logging", "log_file", fallback=None)
@@ -39,14 +41,11 @@ class FolioBadUrls:
         print(f"Found {len(records)} electronic records.")
         for record in records:
             if self.within_scope(record):
-                result = self.test_record(record)
+                result = self.web.test_record(record)
                 # log.debug(f"Result {result} for record: {record}")
         
     def within_scope(self, record):
         return True
-
-    def test_record(self, record):
-        return 200
 
 def main():
     parser = argparse.ArgumentParser(description="Report on URLs in 856 fields.")

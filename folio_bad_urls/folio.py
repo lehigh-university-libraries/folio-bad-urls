@@ -1,6 +1,8 @@
 import logging
 from folioclient.FolioClient import FolioClient
 
+from data import ElectronicRecord
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
@@ -64,13 +66,3 @@ class Folio:
             return record
         else:
             return None
-
-class ElectronicRecord:
-    state: str
-    hasExternalIds: bool
-    suppressDiscovery: bool
-    url: str
-    control_number: str|None
-
-    def __repr__(self):
-        return str(self.__dict__)
