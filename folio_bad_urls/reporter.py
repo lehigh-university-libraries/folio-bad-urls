@@ -3,7 +3,7 @@ import logging
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
-HEADER = "url, status_code\n"
+HEADER = "instance_hrid, url, status_code\n"
 
 class Reporter:
     """ Save bad URLs to a file. """
@@ -22,4 +22,4 @@ class Reporter:
                     file.write(result_line)
 
     def _format_result(self, result):
-        return f"{result.url}, {result.status_code}\n"
+        return f"{result.instance_hrid}, {result.url}, {result.status_code}\n"

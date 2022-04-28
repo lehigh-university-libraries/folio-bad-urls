@@ -1,4 +1,5 @@
 class ElectronicRecord:
+    instance_hrid: str|None
     state: str
     hasExternalIds: bool
     suppressDiscovery: bool
@@ -9,10 +10,12 @@ class ElectronicRecord:
         return str(self.__dict__)
 
 class TestResult:
+    instance_hrid: str|None
     url: str
     status_code: int
 
-    def __init__(self, url, status_code):
+    def __init__(self, instance_hrid, url, status_code):
+        self.instance_hrid = instance_hrid
         self.url = url
         self.status_code = status_code
 

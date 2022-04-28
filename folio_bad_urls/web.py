@@ -28,13 +28,13 @@ class WebTester:
             response = requests.get(url, timeout = self._REQUEST_TIMEOUT)
             status_code = int(response.status_code)
             log.debug(f"Got status code {status_code} for url {url}")
-            return TestResult(url, status_code)
+            return TestResult(record.instance_hrid, url, status_code)
         except requests.exceptions.Timeout:
             log.debug(f"Request timed out for url {url}")
-            return TestResult(url, 0)
+            return TestResult(record.instance_hrid, url, 0)
         except requests.exceptions.RequestException as e:
             log.error(f"Caught unexpected RequestException with url {url}: {e}")
-            return TestResult(url, 0)
+            return TestResult(record.instance_hrid, url, 0)
 
     def _pause_if_needed(self, url):
         base_url = self._parse_base_url(url)

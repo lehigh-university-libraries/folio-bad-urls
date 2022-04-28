@@ -54,6 +54,10 @@ class Folio:
         record = ElectronicRecord()
         record.state = srs_record['state']
         record.hasExternalIds = len(srs_record['externalIdsHolder']) > 0
+        if record.hasExternalIds:
+            record.instance_hrid = srs_record['externalIdsHolder']['instanceHrid']
+        else:
+            record.instance_hrid = None
         record.suppressDiscovery = srs_record['additionalInfo']['suppressDiscovery']
 
         fields = srs_record['parsedRecord']['content']['fields']
