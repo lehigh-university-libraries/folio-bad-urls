@@ -32,7 +32,9 @@ class WebTester:
         except requests.exceptions.Timeout:
             log.debug(f"Request timed out for url {url}")
             return TestResult(url, 0)
-
+        except requests.exceptions.RequestException as e:
+            log.error(f"Caught unexpected RequestException with url {url}: {e}")
+            return TestResult(url, 0)
 
     def _pause_if_needed(self, url):
         base_url = self._parse_base_url(url)
