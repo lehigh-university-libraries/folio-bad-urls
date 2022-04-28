@@ -38,11 +38,11 @@ class FolioBadUrls:
         else:
             self._config.log_file_handler = logging.NullHandler()  # type: ignore
 
-    def run(self):
+    def run(self, start_offset, end_offset):
         QUERY_LIMIT = int(self._config.get('Folio', 'query_limit'))
-        offset = 0
+        offset = start_offset
         total_records = self.folio.get_total_records()
-        while offset < total_records:
+        while offset < total_records and offset < end_offset:
             results = self.run_batch(offset)
             self.reporter.write_results(offset, results)
             offset += QUERY_LIMIT
@@ -66,10 +66,14 @@ class FolioBadUrls:
 def main():
     parser = argparse.ArgumentParser(description="Report on URLs in 856 fields.")
     parser.add_argument('-c,', '--config', dest='config_file', required=True, help='Path to the properties file')
+    parser.add_argument('-s', '--start-offset', dest='start_offset', type=int, default=0, 
+        help='Starting offset for the FOLIO query.  Default is 0.')
+    parser.add_argument('-e', '--end-offset', dest='end_offset', type=int, default=None, 
+        help='Ending offset (exclusive) for the FOLIO query.  Default is no ending, retrieve all records.')
     args = parser.parse_args()
 
     folio_bad_urls = FolioBadUrls(args.config_file)
-    folio_bad_urls.run()
+    folio_bad_urls.run(args.start_offset, args.end_offset)
 
 if __name__ == '__main__':
     try:
