@@ -52,7 +52,9 @@ class FolioBadUrls:
         records = self.folio.load_electronic_records(offset)
         log.debug(f"Found {len(records)} electronic records.")
         results = []
-        for record in records:
+        for index, record in enumerate(records):
+            if index % 100 == 0:
+                log.debug(f"... at index {index} within query batch")
             if self.within_scope(record):
                 # log.debug(f"record within scope: {record}")
                 result = self.web.test_record(record)
