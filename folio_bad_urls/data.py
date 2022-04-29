@@ -1,4 +1,6 @@
 class ElectronicRecord:
+    """ A record with a URL. """
+
     instance_hrid: str|None
     url: str
 
@@ -6,6 +8,8 @@ class ElectronicRecord:
         return str(self.__dict__)
 
 class TestResult:
+    """ The result of testing a URL from a record. """ 
+
     instance_hrid: str|None
     url: str
     status_code: int

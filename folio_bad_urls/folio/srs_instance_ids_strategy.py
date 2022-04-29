@@ -10,6 +10,7 @@ log.setLevel(logging.INFO)
 # log.setLevel(logging.DEBUG)
 
 class SrsInstanceIdsStrategy(Strategy):
+    """ Discover records with electronic resource links via querying SRS for instnance IDs and then inventory. """ 
 
     def __init__(self, folio):
         super().__init__(folio)

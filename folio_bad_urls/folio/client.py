@@ -4,7 +4,7 @@ import json
 from folioclient.FolioClient import FolioClient as OriginalFolioClient
 
 class FolioClient(OriginalFolioClient):
-    """ Extending original library to add POST support. """
+    """ Extend original library to add POST support. """
 
     def folio_post(self, path, key=None, data=""):
         """Fetches data from FOLIO and turns it into a json object"""

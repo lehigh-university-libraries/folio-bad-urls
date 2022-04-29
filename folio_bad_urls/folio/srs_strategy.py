@@ -8,6 +8,7 @@ log.setLevel(logging.INFO)
 # log.setLevel(logging.DEBUG)
 
 class SrsStrategy(Strategy):
+    """ Discover records with electronic resource links via broadly querying SRS and then filtering locally. """ 
 
     def __init__(self, folio):
         super().__init__(folio)

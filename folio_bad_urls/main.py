@@ -14,7 +14,7 @@ log.setLevel(logging.INFO)
 # log.setLevel(logging.DEBUG)
 
 class FolioBadUrls:
-    """ Report on Bad URLs in 856 fields. """
+    """ Report on Bad URLs for electronic resource links within FOLIO records. """
 
     def __init__(self, config_file):
         if not exists(config_file):

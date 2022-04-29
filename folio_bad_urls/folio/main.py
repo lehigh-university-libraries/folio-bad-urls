@@ -7,7 +7,7 @@ log.setLevel(logging.INFO)
 # log.setLevel(logging.DEBUG)
 
 class Folio:
-    """ Get SRS records via the FOLIO API. """
+    """ Get ElectronicRecords via the FOLIO API. """
 
     def __init__(self, config):
         self._config = config
