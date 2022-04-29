@@ -1,10 +1,6 @@
 class ElectronicRecord:
     instance_hrid: str|None
-    state: str
-    hasExternalIds: bool
-    suppressDiscovery: bool
     url: str
-    control_number: str|None
 
     def __repr__(self):
         return str(self.__dict__)
@@ -21,3 +17,6 @@ class TestResult:
 
     def is_bad_url(self):
         return self.status_code != 200
+
+    def __repr__(self):
+        return str(self.__dict__)

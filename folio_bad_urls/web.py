@@ -3,7 +3,7 @@ import logging
 import time
 from urllib.parse import urlparse
 
-from data import ElectronicRecord, TestResult
+from folio_bad_urls.data import ElectronicRecord, TestResult
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -33,7 +33,7 @@ class WebTester:
             log.debug(f"Request timed out for url {url}")
             return TestResult(record.instance_hrid, url, 0)
         except requests.exceptions.RequestException as e:
-            log.error(f"Caught unexpected RequestException with url {url}: {e}")
+            log.warn(f"Caught unexpected RequestException with url {url}: {e}")
             return TestResult(record.instance_hrid, url, 0)
 
     def _pause_if_needed(self, url):
