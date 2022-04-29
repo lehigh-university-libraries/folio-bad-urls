@@ -44,7 +44,7 @@ class FolioBadUrls:
         offset = start_offset
         total_records = self.folio.get_total_records()
         log.info(f"Total records to check: {total_records}")
-        while offset < total_records and offset < end_offset:
+        while offset < total_records and (not end_offset or offset < end_offset):
             results = self.run_batch(offset)
             self.reporter.write_results(offset, results)
             offset += BATCH_LIMIT
