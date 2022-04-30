@@ -9,7 +9,7 @@ log.setLevel(logging.INFO)
 class Folio:
     """ Get ElectronicRecords via the FOLIO API. """
 
-    def __init__(self, config):
+    def __init__(self, config, reuse_instance_ids):
         self._config = config
         log.addHandler(self._config.log_file_handler)
         self.connection = self._init_connection()
@@ -20,7 +20,7 @@ class Folio:
             self._strategy = SrsStrategy(self)
         elif strategy == "SrsInstanceIdsStrategy":
             from folio_bad_urls.folio.srs_instance_ids_strategy import SrsInstanceIdsStrategy
-            self._strategy = SrsInstanceIdsStrategy(self)
+            self._strategy = SrsInstanceIdsStrategy(self, reuse_instance_ids)
         else:
             raise Exception(f"Unknown strategy: {strategy}")
 

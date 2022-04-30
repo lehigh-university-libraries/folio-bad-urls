@@ -1,5 +1,6 @@
 import logging
 import json
+import os
 from os.path import exists
 
 from folio_bad_urls.folio.strategy import Strategy
@@ -9,19 +10,27 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 # log.setLevel(logging.DEBUG)
 
+INSTANCE_IDS_FILENAME = f'instance_ids.json'
+
 class SrsInstanceIdsStrategy(Strategy):
     """ Discover records with electronic resource links via querying SRS for instnance IDs and then inventory. """ 
 
-    def __init__(self, folio):
+    def __init__(self, folio, reuse_instance_ids):
         super().__init__(folio)
         log.addHandler(folio._config.log_file_handler)
+        if not reuse_instance_ids:
+            self._delete_instance_ids()
         self._load_instance_ids()
+
+    def _delete_instance_ids(self):
+        if exists(INSTANCE_IDS_FILENAME):
+            log.info("Clearing prior instance IDs.")
+            os.remove(INSTANCE_IDS_FILENAME)
 
     def _load_instance_ids(self):
         # check file storage
-        filename = f'instance_ids.json'
-        if exists(filename):
-            with open(filename) as file:
+        if exists(INSTANCE_IDS_FILENAME):
+            with open(INSTANCE_IDS_FILENAME) as file:
                 ids = json.load(file)
                 log.debug(f"loaded {len(ids)} ids")
 
@@ -34,10 +43,11 @@ class SrsInstanceIdsStrategy(Strategy):
             ids = set(ids_with_856_u) - set(ids_with_856_w)
             log.debug(f"filtered ids: {len(ids)}")
 
-            with open(filename, 'w') as file:
+            with open(INSTANCE_IDS_FILENAME, 'w') as file:
                 json.dump(list(ids), file)
 
         self._instance_ids = list(ids)
+        log.info(f"Loaded {len(self._instance_ids)} IDs.")
 
     def load_electronic_records(self, offset):
         log.debug("Getting electronic records via instance IDs")

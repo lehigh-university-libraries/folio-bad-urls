@@ -16,7 +16,7 @@ log.setLevel(logging.INFO)
 class FolioBadUrls:
     """ Report on Bad URLs for electronic resource links within FOLIO records. """
 
-    def __init__(self, config_file):
+    def __init__(self, config_file, reuse_instance_ids):
         if not exists(config_file):
             raise FileNotFoundError(f"Cannot find config file: {config_file}")
 
@@ -26,7 +26,7 @@ class FolioBadUrls:
         log.info(f"Initialized with config file {config_file}")
         # Note: Config contains the FOLIO credentials.  Consider logging destinations.
         # print("Config: ", {section: dict(self.config[section]) for section in self.config.sections()})
-        self.folio = Folio(self._config)
+        self.folio = Folio(self._config, reuse_instance_ids)
         self.web = WebTester(self._config)
         self.reporter = Reporter(self._config)
 
@@ -72,9 +72,11 @@ def main():
         help='Starting offset (inclusive) for the FOLIO query.  Default is 0.')
     parser.add_argument('-e', '--end-offset', dest='end_offset', type=int, default=None, 
         help='Ending offset (exclusive) for the FOLIO query.  Default is no ending, retrieve all records.')
+    parser.add_argument('-i,', '--reuse-instance-ids', dest='reuse_instance_ids', type=bool, default=False, 
+        help='Continue to use a previously retrieved list of instance IDs.')
     args = parser.parse_args()
 
-    folio_bad_urls = FolioBadUrls(args.config_file)
+    folio_bad_urls = FolioBadUrls(args.config_file, args.reuse_instance_ids)
     folio_bad_urls.run(args.start_offset, args.end_offset)
 
 if __name__ == '__main__':
