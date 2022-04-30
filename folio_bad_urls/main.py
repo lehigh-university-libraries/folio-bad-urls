@@ -44,10 +44,13 @@ class FolioBadUrls:
         offset = start_offset
         total_records = self.folio.get_total_records()
         log.info(f"Total records to check: {total_records}")
+        total_bad_urls = 0
         while offset < total_records and (not end_offset or offset < end_offset):
             results = self.run_batch(offset)
-            self.reporter.write_results(offset, results)
+            bad_urls = self.reporter.write_results(offset, results)
+            total_bad_urls += bad_urls
             offset += BATCH_LIMIT
+        log.info(f"Completed run with {total_bad_urls} total bad URLs.")
 
     def run_batch(self, offset):
         # TODO use some limit intelligently to allow restart after a point
