@@ -64,8 +64,9 @@ class WebTester:
         try:
             response = requests.get(url, timeout = self._REQUEST_TIMEOUT, headers = WebTester.HEADERS)
             status_code = int(response.status_code)
+            last_permanent_redirect = self._get_last_permanent_redirect(response, url)
             log.debug(f"Got status code {status_code} for url {url}")
-            return TestResult(record.instance_hrid, url, status_code)
+            return TestResult(record.instance_hrid, url, status_code, permanent_redirect=last_permanent_redirect)
         except requests.exceptions.Timeout:
             log.debug(f"Request timed out for url {url}")
             return TestResult(record.instance_hrid, url, LocalStatusCode.CONNECTION_FAILED)
@@ -128,6 +129,15 @@ class WebTester:
         base_url = f"{parsed_url.scheme}://{parsed_url.netloc}/"
         return base_url
 
+    def _get_last_permanent_redirect(self, response, request_url):
+        permanent_redirects = [item for item in response.history if item.is_permanent_redirect]
+        if len(permanent_redirects) == 0:
+            return None
+        elif permanent_redirects[-1].url.strip() != request_url.strip():
+            return permanent_redirects[-1].url
+        else:
+            return None
+            
 class CrawlRules:
     """ Report on robots.txt rules for a base URL. """
 

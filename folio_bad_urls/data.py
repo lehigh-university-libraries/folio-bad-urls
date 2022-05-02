@@ -10,10 +10,11 @@ class ElectronicRecord:
 class TestResult:
     """ The result of testing a URL from a record. """ 
 
-    def __init__(self, instance_hrid, url, status_code):
+    def __init__(self, instance_hrid, url, status_code, permanent_redirect=None):
         self.instance_hrid = instance_hrid
         self.url = url
         self.status_code = status_code
+        self.permanent_redirect = permanent_redirect
 
     def is_bad_url(self):
         return self.status_code != 200
