@@ -12,6 +12,10 @@ log.setLevel(logging.INFO)
 class WebTester:
     """ Test URLs for their response status code. """
 
+    HEADERS = {
+        "user-agent": "folio-bad-urls/0.1"
+    }
+
     def __init__(self, config):
         self._config = config
         log.addHandler(self._config.log_file_handler)
@@ -25,7 +29,7 @@ class WebTester:
         url = record.url
         self._pause_if_needed(url)
         try :
-            response = requests.get(url, timeout = self._REQUEST_TIMEOUT)
+            response = requests.get(url, timeout = self._REQUEST_TIMEOUT, headers = WebTester.HEADERS)
             status_code = int(response.status_code)
             log.debug(f"Got status code {status_code} for url {url}")
             return TestResult(record.instance_hrid, url, status_code)
