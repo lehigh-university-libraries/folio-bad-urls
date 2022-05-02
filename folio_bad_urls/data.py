@@ -20,3 +20,8 @@ class TestResult:
 
     def __repr__(self):
         return str(self.__dict__)
+
+class LocalStatusCode:
+    CONNECTION_FAILED               = 0
+    ROBOTS_TXT_BLOCKS_URL           = -10
+    ROBOTS_TXT_TIMEOUT_EXCESSIVE    = -11
