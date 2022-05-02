@@ -27,9 +27,31 @@ class WebTester:
 
         self._crawl_rules = dict()
         self._last_query_time = dict()
+        self._init_filters()
+
+    def _init_filters(self):
+        self._allow_list = self._block_list = None
+
+        allow_list_string = self._config.get('WebTester', 'allow_list', fallback=None)
+        if allow_list_string:
+            self._allow_list = [val.strip() for val in allow_list_string.split(',')]
+            log.info(f"Using allow list: {self._allow_list}")
+
+        if not self._allow_list:
+            block_list_string = self._config.get('WebTester', 'block_list', fallback=None)
+            if block_list_string:
+                self._block_list = [val.strip() for val in block_list_string.split(',')]
+                log.info(f"Using block list: {self._block_list}")
 
     def test_record(self, record: ElectronicRecord):
         url = record.url
+
+        # check local filters
+        if not self._check_filters(url):
+            log.debug(f"Skipping URL due to filters: {url}")
+            return None
+
+        # check robots.text rules
         rules = self._check_crawl_rules(url)
         if not rules.can_fetch(url):
             log.warn(f"Robots.txt blocks URL: {url}")
@@ -37,7 +59,9 @@ class WebTester:
         pause_ok = self._pause_if_needed(url, rules)
         if not pause_ok:
             return TestResult(record.instance_hrid, url, LocalStatusCode.ROBOTS_TXT_TIMEOUT_EXCESSIVE)
-        try :
+
+        # load URL and check response
+        try:
             response = requests.get(url, timeout = self._REQUEST_TIMEOUT, headers = WebTester.HEADERS)
             status_code = int(response.status_code)
             log.debug(f"Got status code {status_code} for url {url}")
@@ -48,6 +72,23 @@ class WebTester:
         except requests.exceptions.RequestException as e:
             log.warn(f"Caught unexpected RequestException with url {url}: {e}")
             return TestResult(record.instance_hrid, url, LocalStatusCode.CONNECTION_FAILED)
+
+    def _check_filters(self, url):
+        # check allow list
+        if self._allow_list:
+            for pattern in self._allow_list:
+                if pattern in url:
+                    return True
+            return False
+
+        # check block list
+        elif self._block_list:
+            for pattern in self._block_list:
+                if pattern in url:
+                    return False
+
+        # allow URL if it's in neither list
+        return True
 
     def _check_crawl_rules(self, url):
         base_url = self._parse_base_url(url)

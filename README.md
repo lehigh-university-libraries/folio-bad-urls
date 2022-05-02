@@ -39,6 +39,8 @@ For testing each URL.
 | default_crawl_delay | In seconds.  Requests to the same host will be spaced to be at least this far apart, to avoid triggering rate limits.  A higher crawl delay specified in robots.txt is respected. | Y |
 | max_crawl_delay | In seconds, must be greater or equal to default_crawl_delay.  If robots.txt specifies a crawl delay higher than this value, the request will be skipped and reported as a failure with an [identifying status code](#status-codes).  | Y |
 | request_timeout | In seconds.  Maximum timeout used for connecting to URLs. | Y |
+| allow_list | Comma-separated list of strings.  If present, only URLs including one of these strings will be tested. | N |
+| block_list | Comma-separated list of strings.  If present, URLs that include one of these strings will be skipped.  `block_list` is ignored if `allow_list` is present. | N |
 
 ### Logging Section
 

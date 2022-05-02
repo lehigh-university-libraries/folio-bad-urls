@@ -61,8 +61,9 @@ class FolioBadUrls:
             if index % 10 == 0:
                 log.debug(f"... at index {index} within query")
             result = self.web.test_record(record)
-            log.debug(f"Result {result} for record: {record}")
-            results.append(result)
+            if result:
+                log.debug(f"Result {result} for record: {record}")
+                results.append(result)
         return results
         
 def main():
