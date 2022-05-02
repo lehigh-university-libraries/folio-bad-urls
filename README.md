@@ -76,7 +76,8 @@ python3 ./folio_bad_urls/main.py --config=CONFIG_FILE
 The .csv file output by the application has the following columns:
 - FOLIO Instance HRID
 - URL
-- Status Code (see below)
+- [Status Code](#status-codes)
+- [Permanent Redirect](#permanent-redirect)
 
 ### Status Codes
 
@@ -91,6 +92,11 @@ The following codes are reported for special circumstances:
 | 0 | Could not connect to the server within the configured `request_timeout` period. |
 | -10 | Robots.txt blocks fetching this URL. |
 | -11 | Robots.txt specifies a crawl delay greater than the configured `max_crawl_delay` period. |
+
+### Permanent Redirect
+
+If a request includes one or more permanent (301) redirects, this field reports the destination URL of the final permanent redirect.
+A permanent redirect generally indicates that the URL should generally be changed in the source (FOLIO) data.
 
 ## Folio Strategy
 
