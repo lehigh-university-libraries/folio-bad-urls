@@ -16,6 +16,9 @@ class TestResult:
         self.status_code = status_code
         self.permanent_redirect = permanent_redirect
 
+    def is_insecure_url(self):
+        return not self.url.startswith("https:")
+
     def is_bad_url(self):
         return self.status_code != 200
 

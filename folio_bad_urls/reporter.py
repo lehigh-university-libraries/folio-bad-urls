@@ -3,7 +3,7 @@ import logging
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
-HEADER = "instance_hrid, url, status_code, permanent_redirect\n"
+HEADER = "instance_hrid, url, status_code, insecure_url, permanent_redirect\n"
 
 class Reporter:
     """ Save bad URLs to a file. """
@@ -29,5 +29,6 @@ class Reporter:
         return f"{result.instance_hrid}, \
             {result.url}, \
             {result.status_code}, \
+            {result.is_insecure_url() if result.is_insecure_url() else ''}, \
             {result.permanent_redirect if result.permanent_redirect else ''} \
             \n"
