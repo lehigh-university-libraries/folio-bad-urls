@@ -77,6 +77,7 @@ The .csv file output by the application has the following columns:
 - FOLIO Instance HRID
 - URL
 - [Status Code](#status-codes)
+- [Insecure URL](#insecure-url)
 - [Permanent Redirect](#permanent-redirect)
 
 ### Status Codes
@@ -92,6 +93,11 @@ The following codes are reported for special circumstances:
 | 0 | Could not connect to the server within the configured `request_timeout` period. |
 | -10 | Robots.txt blocks fetching this URL. |
 | -11 | Robots.txt specifies a crawl delay greater than the configured `max_crawl_delay` period. |
+
+### Insecure URL
+
+Reports 'True' if the URL uses an insecure connection, i.e. it does not start with `https`.  
+Most servers support secure connections, which help ensure user security and privacy.
 
 ### Permanent Redirect
 
