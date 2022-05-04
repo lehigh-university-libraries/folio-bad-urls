@@ -26,13 +26,13 @@ For connecting to and using the FOLIO APIs.  All properties are **required**.
 | tenant_id | FOLIO Tenant ID | Y |
 | username | FOLIO username | Y | 
 | password | FOLIO password | Y |
-| strategy | Name of the strategy to use.  See [Folio Stratgy](#folio-strategy) below. | Y |
+| strategy | Name of the strategy to use.  See [Folio Strategy](#folio-strategy) below. | Y |
 | query_limit | Number of records requested in each FOLIO API call.  Note: for SrsInstanceIdsStrategy, this must be approximately 30 or lower so that the maximum query string length is not exceeded. | Y |
 | batch_limit | Number of records tested for each output file.  Must be equal to or a multiple of query_limit.  The actual file will contain only those records which had bad URLs. | Y |
 
 ### WebTester Section
 
-For testing each URL.
+For loading and examining the response to each URL.
 
 | Property | Description | Required |
 |----------|-------------|---------|
@@ -41,6 +41,17 @@ For testing each URL.
 | request_timeout | In seconds.  Maximum timeout used for connecting to URLs. | Y |
 | allow_list | Comma-separated list of strings.  If present, only URLs including one of these strings will be tested. | N |
 | block_list | Comma-separated list of strings.  If present, URLs that include one of these strings will be skipped.  `block_list` is ignored if `allow_list` is present. | N |
+
+### UrlParser Section
+
+String pattern tests examining the URL itself.
+
+| Property | Description | Required |
+|----------|-------------|---------|
+| proxy_prefix | A proxy prefix string, used by the two `proxy_report*` parameters. | N |
+| proxy_prefix_common_part | Default is `?url=`.  A brief substring at the end of `proxy_prefix` that is also expected to be at the end of any incorrect prefix. | N | 
+| proxy_report_no_prefix | If True, the CSV will include a column flagging any URL that does not start with this prefix. | N |
+| proxy_report_wrong_prefix |  If True, the CSV will include a column flagging any URL which includes this substring but does not start with the full `proxy_prefix`. | N |
 
 ### Logging Section
 

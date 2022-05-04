@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 import urllib.robotparser
 
 from folio_bad_urls.data import ElectronicRecord, TestResult, LocalStatusCode
+from folio_bad_urls.url_parser import UrlParser
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -25,6 +26,7 @@ class WebTester:
         self._MAX_CRAWL_DELAY = float(self._config.get('WebTester', 'max_crawl_delay'))
         self._REQUEST_TIMEOUT = float(self._config.get('WebTester', 'request_timeout'))
 
+        self._parser = UrlParser(config)
         self._crawl_rules = dict()
         self._last_query_time = dict()
         self._init_filters()
@@ -46,6 +48,9 @@ class WebTester:
     def test_record(self, record: ElectronicRecord):
         url = record.url
 
+        # check static URL parsing results
+        parser_result = self._parser.parse(url)
+
         # check local filters
         if not self._check_filters(url):
             log.debug(f"Skipping URL due to filters: {url}")
@@ -55,10 +60,12 @@ class WebTester:
         rules = self._check_crawl_rules(url)
         if not rules.can_fetch(url):
             log.warn(f"Robots.txt blocks URL: {url}")
-            return TestResult(record.instance_hrid, url, LocalStatusCode.ROBOTS_TXT_BLOCKS_URL)
+            return TestResult(record.instance_hrid, url, LocalStatusCode.ROBOTS_TXT_BLOCKS_URL,
+                parser_result=parser_result)
         pause_ok = self._pause_if_needed(url, rules)
         if not pause_ok:
-            return TestResult(record.instance_hrid, url, LocalStatusCode.ROBOTS_TXT_TIMEOUT_EXCESSIVE)
+            return TestResult(record.instance_hrid, url, LocalStatusCode.ROBOTS_TXT_TIMEOUT_EXCESSIVE,
+                parser_result=parser_result)
 
         # load URL and check response
         try:
@@ -66,13 +73,16 @@ class WebTester:
             status_code = int(response.status_code)
             last_permanent_redirect = self._get_last_permanent_redirect(response, url)
             log.debug(f"Got status code {status_code} for url {url}")
-            return TestResult(record.instance_hrid, url, status_code, permanent_redirect=last_permanent_redirect)
+            return TestResult(record.instance_hrid, url, status_code, permanent_redirect=last_permanent_redirect,
+                parser_result=parser_result)
         except requests.exceptions.Timeout:
             log.debug(f"Request timed out for url {url}")
-            return TestResult(record.instance_hrid, url, LocalStatusCode.CONNECTION_FAILED)
+            return TestResult(record.instance_hrid, url, LocalStatusCode.CONNECTION_FAILED,
+                parser_result=parser_result)
         except requests.exceptions.RequestException as e:
             log.warn(f"Caught unexpected RequestException with url {url}: {e}")
-            return TestResult(record.instance_hrid, url, LocalStatusCode.CONNECTION_FAILED)
+            return TestResult(record.instance_hrid, url, LocalStatusCode.CONNECTION_FAILED,
+                parser_result=parser_result)
 
     def _check_filters(self, url):
         # check allow list
